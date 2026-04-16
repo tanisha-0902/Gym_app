@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8080/api/gym";
+const BASE_URL = "https://gym-app-47sf.onrender.com";
 
 // --- GLOBAL STATE ---
 let AUTH_HEADER = "";
