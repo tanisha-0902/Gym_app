@@ -1,66 +1,49 @@
-const BASE_URL = "https://gym-app-47sf.onrender.com";
+const BASE_URL = "https://gym-app-47sf.onrender.com/api/gym";
 
-// --- GLOBAL STATE ---
 let AUTH_HEADER = "";
 let currentUserId = "";
-
-// --- LOGIN LOGIC ---
 
 async function attemptLogin() {
     const role = document.getElementById("loginRole").value;
     const id = document.getElementById("userId").value;
     const pass = document.getElementById("userPass").value;
 
-    if (!id) {
-        showToast("Please enter an ID or Username", "bg-warning");
-        return;
-    }
-
     try {
-        // We use the same background admin credentials to verify Trainers/Members
         const adminCreds = 'Basic ' + btoa('admin:admin123');
 
         if (role === "ADMIN") {
             const creds = 'Basic ' + btoa(id + ':' + pass);
+            // Calling /members/all to verify admin access
             const res = await fetch(`${BASE_URL}/members/all`, {
                 headers: { 'Authorization': creds }
             });
-
-            if (res.ok) {
-                setupDashboard("ADMIN", creds);
-            } else {
-                showToast("Invalid Admin Credentials", "bg-danger");
-            }
+            if (res.ok) setupDashboard("ADMIN", creds);
+            else showToast("Invalid Admin Credentials", "bg-danger");
         }
         else if (role === "TRAINER") {
-            // FIX: Ensure parameters are passed correctly
-            const res = await fetch(`${BASE_URL}/trainers/login?id=${encodeURIComponent(id)}&password=${encodeURIComponent(pass)}`, {
+            // Check if your Java uses POST or GET for this endpoint
+            const res = await fetch(`${BASE_URL}/trainers/login?id=${id}&password=${pass}`, {
                 method: 'POST',
                 headers: { 'Authorization': adminCreds }
             });
             const msg = await res.text();
-
-            if (msg.includes("Successful")) {
-                setupDashboard("TRAINER", adminCreds);
-            } else {
-                showToast("Invalid Trainer ID or Password", "bg-danger");
-            }
+            if (msg.includes("Successful")) setupDashboard("TRAINER", adminCreds);
+            else showToast("Invalid Trainer", "bg-danger");
         }
         else if (role === "MEMBER") {
             const res = await fetch(`${BASE_URL}/members/${id}`, {
                 headers: { 'Authorization': adminCreds }
             });
-
             if (res.ok) {
                 const member = await res.json();
                 currentUserId = id;
-                document.getElementById("renewId").value = member.id;
                 setupDashboard("MEMBER", adminCreds);
             } else {
-                showToast("Member ID not found", "bg-danger");
+                showToast("Member ID Not Found", "bg-danger");
             }
         }
     } catch (err) {
+        console.error(err);
         showToast("Server Connection Failed", "bg-danger");
     }
 }
