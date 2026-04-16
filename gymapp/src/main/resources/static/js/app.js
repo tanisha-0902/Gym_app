@@ -12,13 +12,19 @@ async function attemptLogin() {
         const adminCreds = 'Basic ' + btoa('admin:admin123');
 
         if (role === "ADMIN") {
-            const creds = 'Basic ' + btoa(id + ':' + pass);
-            // Calling /members/all to verify admin access
+            const userEnteredCreds = 'Basic ' + btoa(id + ':' + pass);
+
+            // We try to fetch members to see if these credentials work
             const res = await fetch(`${BASE_URL}/members/all`, {
-                headers: { 'Authorization': creds }
+                headers: { 'Authorization': userEnteredCreds }
             });
-            if (res.ok) setupDashboard("ADMIN", creds);
-            else showToast("Invalid Admin Credentials", "bg-danger");
+
+            if (res.ok) {
+                // Save these credentials for future calls!
+                setupDashboard("ADMIN", userEnteredCreds);
+            } else {
+                showToast("Invalid Admin Credentials", "bg-danger");
+            }
         }
         else if (role === "TRAINER") {
             // Check if your Java uses POST or GET for this endpoint

@@ -22,14 +22,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disabled for testing/local dev
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for API ease
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/index.html", "/js/**", "/css/**").permitAll() // Let anyone see the UI
-                        .requestMatchers("/api/gym/members/add", "/api/gym/members/all").hasRole("ADMIN")
-                        .anyRequest().authenticated() // Everything else needs a login
+                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**").permitAll() // Allow the UI files
+                        .anyRequest().authenticated() // Protect the API data
                 )
-                .formLogin(withDefaults()) // Enables the default login page
-                .httpBasic(withDefaults()); // Allows Postman/API testing
+                // This is the key: Disable the form login page
+                .formLogin(form -> form.disable())
+                // Use Basic Auth for your app.js to communicate
+                .httpBasic(basic -> {});
 
         return http.build();
     }
