@@ -1,4 +1,4 @@
-# 🏋️ Elite Gym Management System
+# 🏋️Gym Management System
 
 A robust, full-stack web application designed to streamline gym operations. This project features a secure multi-role portal that allows administrators, trainers, and members to interact with a centralized management system through a dynamic, responsive interface.
 
