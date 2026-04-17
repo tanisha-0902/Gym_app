@@ -55,9 +55,9 @@ public class SecurityConfig {
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        // More stable way to define the admin for Docker
-        UserDetails admin = User.withUsername("admin")
-                .password("{noop}admin123") // '{noop}' tells Spring it's plain text for now
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password("{noop}admin123")
                 .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(admin);

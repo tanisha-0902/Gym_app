@@ -18,12 +18,14 @@ async function attemptLogin() {
 
         if (role === "ADMIN") {
             const userEnteredCreds = 'Basic ' + btoa(id + ':' + pass);
-            // We check admin validity by trying to fetch all members
+
             const res = await fetch(`${BASE_URL}/members/all`, {
                 headers: { 'Authorization': userEnteredCreds }
             });
 
-            if (res.ok) {
+            // CHANGE: If it's a 400 (Empty/Table issue) but credentials were correct,
+            // we still let them in so they can CREATE the first member!
+            if (res.ok || res.status === 400) {
                 setupDashboard("ADMIN", userEnteredCreds);
             } else {
                 showToast("Invalid Admin Credentials", "bg-danger");
