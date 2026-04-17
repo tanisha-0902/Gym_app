@@ -1,6 +1,6 @@
 package com.gym.gymapp.controller;
 
-import com.gym.gymapp.model.member;
+import com.gym.gymapp.model.Member;
 import com.gym.gymapp.model.Trainer;
 import com.gym.gymapp.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +19,12 @@ public class MemberController {
     // --- ADMIN ENDPOINTS ---
 
     @PostMapping("/members/add")
-    public member addMember(@RequestBody member member) {
+    public Member addMember(@RequestBody Member member) {
         return memberService.registerMember(member);
     }
 
     @GetMapping("/members/all")
-    public List<member> listMembers() {
+    public List<Member> listMembers() {
         return memberService.getAllMembers();
     }
 
@@ -47,19 +47,19 @@ public class MemberController {
     }
 
     @PutMapping("/assign/{memberId}/{trainerId}")
-    public member assignTrainer(@PathVariable Long memberId, @PathVariable String trainerId) {
+    public Member assignTrainer(@PathVariable Long memberId, @PathVariable String trainerId) {
         return memberService.assignTrainer(memberId, trainerId);
     }
 
     // --- CUSTOMER ENDPOINTS ---
 
     @GetMapping("/members/{id}")
-    public member viewProfile(@PathVariable Long id) {
+    public Member viewProfile(@PathVariable Long id) {
         return memberService.getMemberById(id);
     }
 
     @PutMapping("/members/renew/{id}")
-    public member renew(@PathVariable Long id, @RequestParam String type) {
+    public Member renew(@PathVariable Long id, @RequestParam String type) {
         return memberService.renewMembership(id, type);
     }
 }
