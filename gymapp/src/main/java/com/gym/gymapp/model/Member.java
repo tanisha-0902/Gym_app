@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "members")
-public class member {
+public class Member { // Renamed to Uppercase 'Member'
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,10 +18,21 @@ public class member {
     private LocalDate endDate;
 
     @ManyToOne
-    @JoinColumn(name = "trainer_id") // This is the Foreign Key column in MySQL
+    @JoinColumn(name = "trainer_id")
     private Trainer assignedTrainer;
 
-    public member() {}
+    // Default Constructor
+    public Member() {}
+
+    // AUTOMATIC DATE LOGIC: This sets the dates when you save a new member
+    @PrePersist
+    protected void onCreate() {
+        this.startDate = LocalDate.now();
+        // Default to 1 month membership if not calculated elsewhere
+        if (this.endDate == null) {
+            this.endDate = this.startDate.plusMonths(1);
+        }
+    }
 
     // Getters and Setters
     public Long getId() { return id; }

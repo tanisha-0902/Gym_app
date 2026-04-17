@@ -14,7 +14,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
@@ -22,25 +21,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for API ease
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**").permitAll() // Allow the UI files
-                        .anyRequest().authenticated() // Protect the API data
+                        // Allow static resources AND the login/public endpoints
+                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/api/gym/trainers/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-                // This is the key: Disable the form login page
                 .formLogin(form -> form.disable())
-                // Use Basic Auth for your app.js to communicate
                 .httpBasic(basic -> {});
 
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("https://tanisha-0902.github.io")); // Your frontend URL
+        // UPDATED: Added more allowed origins for easier testing
+        config.setAllowedOrigins(Arrays.asList(
+                "https://tanisha-0902.github.io",
+                "https://gym-app-47sf.onrender.com",
+                "http://localhost:8080",
+                "http://127.0.0.1:5500" // For VS Code Live Server
+        ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -49,10 +55,9 @@ public class SecurityConfig {
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        // Equivalent to your Admin credentials from GymApp.java
-        UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("admin")
-                .password("admin123")
+        // More stable way to define the admin for Docker
+        UserDetails admin = User.withUsername("admin")
+                .password("{noop}admin123") // '{noop}' tells Spring it's plain text for now
                 .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(admin);

@@ -8,33 +8,41 @@ async function attemptLogin() {
     const id = document.getElementById("userId").value;
     const pass = document.getElementById("userPass").value;
 
+    if (!id || !pass) {
+        showToast("Please enter both ID and Password", "bg-warning");
+        return;
+    }
+
     try {
         const adminCreds = 'Basic ' + btoa('admin:admin123');
 
         if (role === "ADMIN") {
             const userEnteredCreds = 'Basic ' + btoa(id + ':' + pass);
-
-            // We try to fetch members to see if these credentials work
+            // We check admin validity by trying to fetch all members
             const res = await fetch(`${BASE_URL}/members/all`, {
                 headers: { 'Authorization': userEnteredCreds }
             });
 
             if (res.ok) {
-                // Save these credentials for future calls!
                 setupDashboard("ADMIN", userEnteredCreds);
             } else {
                 showToast("Invalid Admin Credentials", "bg-danger");
             }
         }
         else if (role === "TRAINER") {
-            // Check if your Java uses POST or GET for this endpoint
-            const res = await fetch(`${BASE_URL}/trainers/login?id=${id}&password=${pass}`, {
+            // Updated to ensure URLSearchParams are used if needed,
+            // but keeping your URL string style as it matches @RequestParam
+            const res = await fetch(`${BASE_URL}/trainers/login?id=${encodeURIComponent(id)}&password=${encodeURIComponent(pass)}`, {
                 method: 'POST',
                 headers: { 'Authorization': adminCreds }
             });
+
             const msg = await res.text();
-            if (msg.includes("Successful")) setupDashboard("TRAINER", adminCreds);
-            else showToast("Invalid Trainer", "bg-danger");
+            if (msg.includes("Successful")) {
+                setupDashboard("TRAINER", adminCreds);
+            } else {
+                showToast("Invalid Trainer ID or Password", "bg-danger");
+            }
         }
         else if (role === "MEMBER") {
             const res = await fetch(`${BASE_URL}/members/${id}`, {
@@ -43,13 +51,15 @@ async function attemptLogin() {
             if (res.ok) {
                 const member = await res.json();
                 currentUserId = id;
+                // Pre-fill the renew ID field for the member
+                if(document.getElementById("renewId")) document.getElementById("renewId").value = member.id;
                 setupDashboard("MEMBER", adminCreds);
             } else {
                 showToast("Member ID Not Found", "bg-danger");
             }
         }
     } catch (err) {
-        console.error(err);
+        console.error("Login Error:", err);
         showToast("Server Connection Failed", "bg-danger");
     }
 }

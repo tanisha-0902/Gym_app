@@ -9,13 +9,14 @@ import java.util.List;
 public class Trainer {
 
     @Id
-    private String trainerId; // Unique ID (e.g., "TRAIN_01")
+    private String trainerId;
     private String password;
     private String specialization;
 
+    // UPDATED: Changed 'member' to 'Member' to match the renamed class
     @OneToMany(mappedBy = "assignedTrainer")
-    @JsonIgnore // Prevents infinite loops during JSON conversion
-    private List<member> members;
+    @JsonIgnore
+    private List<Member> members;
 
     public Trainer() {}
 
@@ -28,6 +29,7 @@ public class Trainer {
     public String getSpecialization() { return specialization; }
     public void setSpecialization(String specialization) { this.specialization = specialization; }
 
-    public List<member> getMembers() { return members; }
-    public void setMembers(List<member> members) { this.members = members; }
+    // UPDATED: Changed 'member' to 'Member'
+    public List<Member> getMembers() { return members; }
+    public void setMembers(List<Member> members) { this.members = members; }
 }

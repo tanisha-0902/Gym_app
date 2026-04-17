@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@CrossOrigin(origins = "*")
+
+@CrossOrigin(origins = "*") // Allows your frontend to talk to this backend
 @RestController
 @RequestMapping("/api/gym")
 public class MemberController {
@@ -28,9 +29,8 @@ public class MemberController {
     }
 
     @DeleteMapping("/members/{id}")
-    public String deleteMember(@PathVariable Long id) {
+    public void deleteMember(@PathVariable Long id) { // Changed to void/ResponseEntity for cleaner API
         memberService.deleteMember(id);
-        return "Member deleted successfully";
     }
 
     @PostMapping("/trainers/add")
@@ -38,13 +38,9 @@ public class MemberController {
         return memberService.addTrainer(trainer);
     }
 
-    @GetMapping("/trainers/all")
-    public List<Trainer> listTrainers() {
-        return memberService.getAllTrainers();
-    }
-
     // --- TRAINER ENDPOINTS ---
 
+    // Keep this as POST but ensure app.js sends it correctly
     @PostMapping("/trainers/login")
     public String login(@RequestParam String id, @RequestParam String password) {
         return memberService.loginTrainer(id, password) ? "Login Successful" : "Invalid Credentials";

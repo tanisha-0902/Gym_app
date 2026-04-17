@@ -10,7 +10,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        // This ensures that instead of a crash, the user gets a clean error message
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        // Change from NOT_FOUND to BAD_REQUEST (400)
+        // This way, if login fails, you get a 400 error, not a 404.
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    // Optional: Add a specific handler for security/unauthorized if needed later
 }
